@@ -3,141 +3,920 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS 3D - Professional Game Engine</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>NEXUS ENGINE 2.0 - Visual Game Creator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #da3633;
+            --purple: #a371f7;
+            --pink: #f778ba;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Layout */
+        .app {
+            display: grid;
+            grid-template-areas: 
+                "toolbar toolbar toolbar"
+                "hierarchy viewport properties"
+                "timeline timeline timeline";
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: 48px 1fr 200px;
+            height: 100vh;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            grid-area: toolbar;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border-left: 1px solid var(--border);
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--border);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2ea043;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow: auto;
+            padding: 12px;
+        }
+
+        /* Hierarchy Panel */
+        .hierarchy {
+            grid-area: hierarchy;
+        }
+
+        .scene-tree {
+            list-style: none;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .tree-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .tree-item.selected {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tree-icon {
+            width: 16px;
+            text-align: center;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+            border-left: 1px solid var(--border);
+            padding-left: 8px;
+        }
+
+        /* Viewport */
+        .viewport {
+            grid-area: viewport;
+            position: relative;
+            background: #000;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .viewport-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .viewport-stats {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .gizmo-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .gizmo-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .gizmo-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Properties Panel */
+        .properties {
+            grid-area: properties;
+        }
+
+        .property-group {
+            margin-bottom: 20px;
+        }
+
+        .property-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .property-name {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .property-input {
+            flex: 1;
+            padding: 6px 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .vector3-input {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .vector3-input input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .vector3-input input:nth-child(1) { border-color: #f85149; }
+        .vector3-input input:nth-child(2) { border-color: #3fb950; }
+        .vector3-input input:nth-child(3) { border-color: #58a6ff; }
+
+        /* Timeline */
+        .timeline {
+            grid-area: timeline;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .timeline-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .track-name {
+            width: 120px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .track-keyframes {
+            flex: 1;
+            height: 32px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .keyframe {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        /* Component Cards */
+        .component-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .component-header {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .component-body {
+            padding: 12px;
+        }
+
+        .add-component {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-component:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Event Sheet */
+        .event-sheet {
+            position: fixed;
+            top: 48px;
+            left: 280px;
+            right: 320px;
+            bottom: 200px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .event-sheet.active {
+            display: flex;
+        }
+
+        .event-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 12px;
+            padding: 12px;
+        }
+
+        .event-condition {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .event-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-left: 24px;
+            border-left: 3px solid var(--success);
+        }
+
+        /* Asset Browser */
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+        }
+
+        .asset-item {
+            aspect-ratio: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .asset-item:hover {
+            border-color: var(--accent);
+            background: var(--bg-secondary);
+        }
+
+        .asset-icon {
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 8px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Dropdown */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 28px;
+        }
+
+        /* Checkbox */
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        /* Color picker */
+        input[type="color"] {
+            width: 40px;
+            height: 28px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: none;
+            cursor: pointer;
+        }
+
+        /* Play Mode Overlay */
+        .play-overlay {
+            position: fixed;
+            top: 48px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            display: none;
+            z-index: 50;
+        }
+
+        .play-overlay.active {
+            display: block;
+        }
+
+        .play-toolbar {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+    </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loader" class="loader">
-        <div class="loader-content">
-            <div class="cyber-spinner"></div>
-            <h1 class="glitch" data-text="NEXUS 3D">NEXUS 3D</h1>
-            <p class="loading-text">Initializing Quantum Engine...</p>
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Menu -->
-    <div id="main-menu" class="screen active">
-        <div class="menu-bg">
-            <div class="grid-floor"></div>
-            <div class="particles"></div>
-        </div>
-        
-        <nav class="main-nav">
+    <div class="app">
+        <!-- Toolbar -->
+        <div class="toolbar">
             <div class="logo">
-                <span class="logo-icon">◈</span>
-                <span class="logo-text">NEXUS</span>
+                <div class="logo-icon">◈</div>
+                <span>NEXUS ENGINE</span>
             </div>
-            <div class="nav-links">
-                <a href="#" class="nav-link active">GAME</a>
-                <a href="#" class="nav-link">EDITOR</a>
-                <a href="#" class="nav-link">LEADERBOARD</a>
-            </div>
-        </nav>
-
-        <div class="hero-section">
-            <h1 class="hero-title">
-                <span class="gradient-text">BUILD.</span>
-                <span class="gradient-text-2">PLAY.</span>
-                <span class="outline-text">DOMINATE.</span>
-            </h1>
-            <p class="hero-subtitle">Next-Gen Browser 3D Engine</p>
             
-            <div class="cta-buttons">
-                <button class="btn btn-primary" onclick="startGame()">
-                    <span class="btn-icon">▶</span>
-                    PLAY NOW
-                </button>
-                <button class="btn btn-secondary" onclick="openEditor()">
-                    <span class="btn-icon">⚡</span>
-                    LEVEL EDITOR
-                </button>
+            <div class="toolbar-section">
+                <button class="btn" onclick="fileMenu()">📁 File</button>
+                <button class="btn" onclick="editMenu()">✏️ Edit</button>
+                <button class="btn" onclick="viewMenu()">👁 View</button>
+            </div>
+            
+            <div class="toolbar-section">
+                <button class="btn btn-primary" onclick="playGame()">▶ Play</button>
+                <button class="btn" onclick="pauseGame()">⏸ Pause</button>
+                <button class="btn btn-danger" onclick="stopGame()">⏹ Stop</button>
+            </div>
+            
+            <div class="toolbar-section" style="margin-left: auto;">
+                <button class="btn" onclick="toggleEventSheet()">📋 Events</button>
+                <button class="btn" onclick="toggleAssets()">🎨 Assets</button>
+                <button class="btn" onclick="exportGame()">📤 Export</button>
             </div>
         </div>
 
-        <div class="feature-cards">
-            <div class="card">
-                <div class="card-icon">🎮</div>
-                <h3>3D Physics</h3>
-                <p>Real-time collision & gravity</p>
+        <!-- Hierarchy Panel -->
+        <div class="panel hierarchy">
+            <div class="panel-header">
+                <span>🏛 Scene</span>
+                <button class="btn" style="padding: 4px 8px;" onclick="addObject()">+</button>
             </div>
-            <div class="card">
-                <div class="card-icon">🎨</div>
-                <h3>Level Editor</h3>
-                <p>Build in browser</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">⚡</div>
-                <h3>60 FPS</h3>
-                <p>WebGL powered</p>
+            <div class="panel-content">
+                <ul class="scene-tree" id="sceneTree">
+                    <li class="tree-item selected" data-id="camera">
+                        <span class="tree-icon">📷</span>
+                        <span>Main Camera</span>
+                    </li>
+                    <li class="tree-item" data-id="light">
+                        <span class="tree-icon">💡</span>
+                        <span>Directional Light</span>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
 
-    <!-- Game Screen -->
-    <div id="game-screen" class="screen">
-        <div class="game-ui">
-            <div class="hud-top">
-                <div class="score-panel">
-                    <span class="label">SCORE</span>
-                    <span id="score" class="value">0000</span>
-                </div>
-                <div class="health-panel">
-                    <div class="health-bar">
-                        <div id="health-fill" class="health-fill"></div>
+        <!-- Viewport -->
+        <div class="viewport">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="viewport-overlay">
+                <button class="btn" onclick="setGizmo('translate')">↔ Move</button>
+                <button class="btn" onclick="setGizmo('rotate')">↻ Rotate</button>
+                <button class="btn" onclick="setGizmo('scale')">⤢ Scale</button>
+            </div>
+            
+            <div class="viewport-stats" id="stats">
+                FPS: 60 | Objects: 0 | Draw Calls: 0
+            </div>
+            
+            <div class="gizmo-controls">
+                <button class="gizmo-btn active" id="gizmo-local" onclick="toggleSpace()" title="Local/Global">🌐</button>
+                <button class="gizmo-btn" onclick="focusSelected()" title="Focus">🎯</button>
+            </div>
+        </div>
+
+        <!-- Properties Panel -->
+        <div class="panel properties">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('inspector')">🔍 Inspector</div>
+                <div class="tab" onclick="switchTab('project')">📁 Project</div>
+            </div>
+            
+            <div class="panel-content" id="inspectorPanel">
+                <div class="property-group">
+                    <div class="property-label">Transform</div>
+                    <div class="property-row">
+                        <span class="property-name">Position</span>
+                        <div class="vector3-input">
+                            <input type="number" class="property-input" id="posX" value="0" step="0.1">
+                            <input type="number" class="property-input" id="posY" value="0" step="0.1">
+                            <input type="number" class="property-input" id="posZ" value="0" step="0.1">
+                        </div>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-name">Rotation</span>
+                        <div class="vector3-input">
+                            <input type="number" class="property-input" id="rotX" value="0" step="1">
+                            <input type="number" class="property-input" id="rotY" value="0" step="1">
+                            <input type="number" class="property-input" id="rotZ" value="0" step="1">
+                        </div>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-name">Scale</span>
+                        <div class="vector3-input">
+                            <input type="number" class="property-input" id="scaleX" value="1" step="0.1">
+                            <input type="number" class="property-input" id="scaleY" value="1" step="0.1">
+                            <input type="number" class="property-input" id="scaleZ" value="1" step="0.1">
+                        </div>
                     </div>
                 </div>
-                <div class="time-panel">
-                    <span class="label">TIME</span>
-                    <span id="time" class="value">00:00</span>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <span>🎨 Mesh Renderer</span>
+                        <button class="btn" style="padding: 2px 6px;">⚙️</button>
+                    </div>
+                    <div class="component-body">
+                        <div class="property-row">
+                            <span class="property-name">Material</span>
+                            <select class="property-input">
+                                <option>Standard</option>
+                                <option>Unlit</option>
+                                <option>Wireframe</option>
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <span class="property-name">Color</span>
+                            <input type="color" value="#58a6ff">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-name">Cast Shadows</span>
+                            <input type="checkbox" checked>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="hud-bottom">
-                <div class="controls-hint">
-                    <kbd>WASD</kbd> Move <kbd>SPACE</kbd> Jump <kbd>SHIFT</kbd> Run <kbd>MOUSE</kbd> Look
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <span>⚡ Rigidbody</span>
+                        <button class="btn" style="padding: 2px 6px;">⚙️</button>
+                    </div>
+                    <div class="component-body">
+                        <div class="property-row">
+                            <span class="property-name">Mass</span>
+                            <input type="number" class="property-input" value="1" step="0.1">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-name">Gravity</span>
+                            <input type="checkbox" checked>
+                        </div>
+                        <div class="property-row">
+                            <span class="property-name">Is Kinematic</span>
+                            <input type="checkbox">
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-pause" onclick="togglePause()">⏸</button>
+
+                <button class="add-component" onclick="addComponent()">+ Add Component</button>
             </div>
         </div>
-        
-        <canvas id="gameCanvas"></canvas>
-        
-        <!-- Pause Menu -->
-        <div id="pause-menu" class="overlay-menu hidden">
-            <h2>PAUSED</h2>
-            <button class="btn" onclick="resumeGame()">RESUME</button>
-            <button class="btn" onclick="restartGame()">RESTART</button>
-            <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="timeline-toolbar">
+                <button class="btn">⏮</button>
+                <button class="btn">⏴</button>
+                <button class="btn btn-primary">▶</button>
+                <button class="btn">⏵</button>
+                <button class="btn">⏭</button>
+                <div style="width: 1px; height: 20px; background: var(--border);"></div>
+                <span style="font-size: 12px; color: var(--text-secondary);">00:00:00 / 00:01:00</span>
+                <input type="range" style="flex: 1; margin: 0 12px;" min="0" max="60" value="0">
+            </div>
+            <div class="timeline-track">
+                <span class="track-name">📷 Camera</span>
+                <div class="track-keyframes">
+                    <div class="keyframe" style="left: 10%;"></div>
+                    <div class="keyframe" style="left: 50%;"></div>
+                </div>
+            </div>
+            <div class="timeline-track">
+                <span class="track-name">💡 Light</span>
+                <div class="track-keyframes">
+                    <div class="keyframe" style="left: 30%;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Level Editor -->
-    <div id="editor-screen" class="screen">
-        <div class="editor-ui">
-            <div class="toolbar">
-                <button class="tool-btn active" data-tool="platform">⬜ Platform</button>
-                <button class="tool-btn" data-tool="ramp">📐 Ramp</button>
-                <button class="tool-btn" data-tool="coin">🪙 Coin</button>
-                <button class="tool-btn" data-tool="enemy">👾 Enemy</button>
-                <button class="tool-btn" data-tool="spawn">🎯 Spawn</button>
-                <button class="tool-btn" data-tool="goal">🏁 Goal</button>
+    <!-- Event Sheet Modal -->
+    <div class="event-sheet" id="eventSheet">
+        <div class="panel-header">
+            <span>📋 Event Sheet - Level 1</span>
+            <button class="btn" onclick="toggleEventSheet()">✕</button>
+        </div>
+        <div class="panel-content">
+            <div class="event-block">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 12px; color: var(--text-secondary);">Event 1</span>
+                    <button class="btn" style="margin-left: auto; padding: 4px 8px;">+ Condition</button>
+                    <button class="btn" style="padding: 4px 8px;">+ Action</button>
+                </div>
+                <div class="event-condition">
+                    <select class="property-input" style="width: 120px;">
+                        <option>Keyboard</option>
+                        <option>Mouse</option>
+                        <option>Collision</option>
+                        <option>Timer</option>
+                    </select>
+                    <select class="property-input" style="width: 100px;">
+                        <option>Key Pressed</option>
+                        <option>Key Released</option>
+                    </select>
+                    <input type="text" class="property-input" value="Space" style="width: 80px;">
+                </div>
+                <div class="event-action">
+                    <select class="property-input" style="width: 120px;">
+                        <option>Player</option>
+                        <option>Object</option>
+                        <option>System</option>
+                    </select>
+                    <select class="property-input" style="width: 120px;">
+                        <option>Jump</option>
+                        <option>Move</option>
+                        <option>Spawn</option>
+                    </select>
+                    <span style="color: var(--text-secondary); font-size: 12px;">Force: 10</span>
+                </div>
             </div>
-            <div class="editor-actions">
-                <button class="btn" onclick="clearLevel()">Clear</button>
-                <button class="btn btn-primary" onclick="testLevel()">Test Play</button>
-                <button class="btn btn-primary" onclick="saveLevel()">Save</button>
+            
+            <button class="add-component" onclick="addEvent()">+ Add New Event</button>
+        </div>
+    </div>
+
+    <!-- Asset Browser Modal -->
+    <div class="modal-overlay" id="assetModal">
+        <div class="modal">
+            <div class="modal-header">🎨 Asset Browser</div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <div class="tab active">🎭 Sprites</div>
+                    <div class="tab">🔊 Audio</div>
+                    <div class="tab">📁 Fonts</div>
+                    <div class="tab">⚡ Shaders</div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <div class="asset-grid">
+                        <div class="asset-item">
+                            <span class="asset-icon">⬜</span>
+                            <span>Cube</span>
+                        </div>
+                        <div class="asset-item">
+                            <span class="asset-icon">🔵</span>
+                            <span>Sphere</span>
+                        </div>
+                        <div class="asset-item">
+                            <span class="asset-icon">📐</span>
+                            <span>Cone</span>
+                        </div>
+                        <div class="asset-item">
+                            <span class="asset-icon">🎭</span>
+                            <span>Character</span>
+                        </div>
+                        <div class="asset-item">
+                            <span class="asset-icon">🌳</span>
+                            <span>Tree</span>
+                        </div>
+                        <div class="asset-item">
+                            <span class="asset-icon">🏠</span>
+                            <span>House</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="toggleAssets()">Cancel</button>
+                <button class="btn btn-primary">Import Selected</button>
             </div>
         </div>
-        <canvas id="editorCanvas"></canvas>
+    </div>
+
+    <!-- Play Mode Overlay -->
+    <div class="play-overlay" id="playOverlay">
+        <div class="play-toolbar">
+            <button class="btn btn-danger" onclick="stopGame()">⏹ Stop</button>
+            <span style="color: var(--text-primary); font-size: 13px;">Playing...</span>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="levels.js"></script>
-    <script src="game.js"></script>
+    <script src="editor.js"></script>
 </body>
 </html>
