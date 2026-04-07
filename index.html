@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS 3D - Professional Game Engine</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="cyber-spinner"></div>
+            <h1 class="glitch" data-text="NEXUS 3D">NEXUS 3D</h1>
+            <p class="loading-text">Initializing Quantum Engine...</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="screen active">
+        <div class="menu-bg">
+            <div class="grid-floor"></div>
+            <div class="particles"></div>
+        </div>
+        
+        <nav class="main-nav">
+            <div class="logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">NEXUS</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">GAME</a>
+                <a href="#" class="nav-link">EDITOR</a>
+                <a href="#" class="nav-link">LEADERBOARD</a>
+            </div>
+        </nav>
+
+        <div class="hero-section">
+            <h1 class="hero-title">
+                <span class="gradient-text">BUILD.</span>
+                <span class="gradient-text-2">PLAY.</span>
+                <span class="outline-text">DOMINATE.</span>
+            </h1>
+            <p class="hero-subtitle">Next-Gen Browser 3D Engine</p>
+            
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="startGame()">
+                    <span class="btn-icon">▶</span>
+                    PLAY NOW
+                </button>
+                <button class="btn btn-secondary" onclick="openEditor()">
+                    <span class="btn-icon">⚡</span>
+                    LEVEL EDITOR
+                </button>
+            </div>
+        </div>
+
+        <div class="feature-cards">
+            <div class="card">
+                <div class="card-icon">🎮</div>
+                <h3>3D Physics</h3>
+                <p>Real-time collision & gravity</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Level Editor</h3>
+                <p>Build in browser</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>60 FPS</h3>
+                <p>WebGL powered</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-ui">
+            <div class="hud-top">
+                <div class="score-panel">
+                    <span class="label">SCORE</span>
+                    <span id="score" class="value">0000</span>
+                </div>
+                <div class="health-panel">
+                    <div class="health-bar">
+                        <div id="health-fill" class="health-fill"></div>
+                    </div>
+                </div>
+                <div class="time-panel">
+                    <span class="label">TIME</span>
+                    <span id="time" class="value">00:00</span>
+                </div>
+            </div>
+            
+            <div class="hud-bottom">
+                <div class="controls-hint">
+                    <kbd>WASD</kbd> Move <kbd>SPACE</kbd> Jump <kbd>SHIFT</kbd> Run <kbd>MOUSE</kbd> Look
+                </div>
+                <button class="btn-pause" onclick="togglePause()">⏸</button>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="overlay-menu hidden">
+            <h2>PAUSED</h2>
+            <button class="btn" onclick="resumeGame()">RESUME</button>
+            <button class="btn" onclick="restartGame()">RESTART</button>
+            <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+        </div>
+    </div>
+
+    <!-- Level Editor -->
+    <div id="editor-screen" class="screen">
+        <div class="editor-ui">
+            <div class="toolbar">
+                <button class="tool-btn active" data-tool="platform">⬜ Platform</button>
+                <button class="tool-btn" data-tool="ramp">📐 Ramp</button>
+                <button class="tool-btn" data-tool="coin">🪙 Coin</button>
+                <button class="tool-btn" data-tool="enemy">👾 Enemy</button>
+                <button class="tool-btn" data-tool="spawn">🎯 Spawn</button>
+                <button class="tool-btn" data-tool="goal">🏁 Goal</button>
+            </div>
+            <div class="editor-actions">
+                <button class="btn" onclick="clearLevel()">Clear</button>
+                <button class="btn btn-primary" onclick="testLevel()">Test Play</button>
+                <button class="btn btn-primary" onclick="saveLevel()">Save</button>
+            </div>
+        </div>
+        <canvas id="editorCanvas"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="levels.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
